@@ -35,19 +35,27 @@ bool forceReading;       //  force readings and do not only wait for estimated m
 
 
 void setup() {
+  // delay for serial monitor
+  delay(5000); 
   forceReading = true;   //  also try false
   Serial.begin(9600);
+  delay(5000); 
+  while(!Serial); 
   Serial.println("");
-  sens1.begin(BH1750_TO_VCC, &Wire1);     //  address pin is connected to VCC (5V or 3.3V)
-  sens2.begin(BH1750_TO_GROUND, &Wire1);  //  address pin is connected to ground
+  bool res1 = sens1.begin(BH1750_TO_VCC, &Wire1);     //  address pin is connected to VCC (5V or 3.3V)
+  bool res2 = sens2.begin(BH1750_TO_GROUND, &Wire1);  //  address pin is connected to ground
+  Serial.println("Res1 " + String(res1) + "\tRes2 " + String(res1));
   sens1.calibrateTiming();  //  Calibrate for fastest conversion time
   sens2.calibrateTiming();  //  Calibrate for fastest conversion time
 
   sens1.start(BH1750_QUALITY_HIGH2, BH1750_MTREG_DEFAULT); //  same settings for both sensors
   sens2.start(BH1750_QUALITY_HIGH2, BH1750_MTREG_DEFAULT);
+  Serial.println("Setup Complete"); 
 }
 
+int it = 0; 
 void loop() {
+  Serial.print("It: "); Serial.println(it++); 
   ready1 = sens1.hasValue(forceReading);       //*
   ready2 = sens2.hasValue(forceReading);       //*
   if ((ready1 == true) && (ready2 == true)) {  //*  when both seniors have completed their measurement,
@@ -61,4 +69,6 @@ void loop() {
     sens1.start();  //  start again after measuremnt is finished
     sens2.start();
   }
+
+  delay(1000); 
 }
